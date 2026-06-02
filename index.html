@@ -62,7 +62,6 @@
             border: 1px solid #383d44;
         }
 
-        /* Robux Amblemi yerine evrensel altın simgesi (veya R$) */
         .robux-icon {
             color: #f1c40f;
             margin-right: 6px;
@@ -142,6 +141,33 @@
         .btn-send:hover {
             background-color: #0082cc;
         }
+
+        /* Büyük Başarı Mesajı Kutusu */
+        #successMessage {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: rgba(0, 176, 111, 0.95);
+            color: white;
+            padding: 20px 30px;
+            border-radius: 10px;
+            text-align: center;
+            font-size: 20px;
+            font-weight: bold;
+            z-index: 1000;
+            box-shadow: 0 0 25px rgba(0,0,0,0.6);
+            border: 2px solid #fff;
+            width: 85%;
+            max-width: 350px;
+            animation: fadeIn 0.3s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translate(-50%, -60%); }
+            to { opacity: 1; transform: translate(-50%, -50%); }
+        }
     </style>
 </head>
 <body>
@@ -172,6 +198,8 @@
         </button>
     </div>
 
+    <div id="successMessage"></div>
+
     <script>
         // Sayfa yüklendiğinde hafızadaki Robux miktarını çek
         let currentRobux = parseInt(localStorage.getItem('robuxCount')) || 0;
@@ -201,7 +229,8 @@
 
         // Gönder Buton fonksiyonu
         function sendRobux() {
-            const username = document.getElementById('targetUser').value.trim();
+            const usernameInput = document.getElementById('targetUser');
+            const username = usernameInput.value.trim();
             const sendAmountInput = document.getElementById('sendAmount');
             let sendAmount = parseInt(sendAmountInput.value);
 
@@ -225,12 +254,20 @@
             localStorage.setItem('robuxCount', currentRobux);
             balanceElement.innerText = currentRobux.toLocaleString();
 
-            alert(`${sendAmount.toLocaleString()} Robux, ${username} adlı kullanıcıya başarıyla gönderildi!`);
+            // Büyük başarı mesajını ekranda göster
+            const msgBox = document.getElementById('successMessage');
+            msgBox.innerHTML = `Robux "${username}" Adlı Kişiye Başarıyla Gönderildi !`;
+            msgBox.style.display = 'block';
+
+            // 3 saniye (3000ms) sonra mesajı gizle
+            setTimeout(() => {
+                msgBox.style.display = 'none';
+            }, 3000);
             
-            // Girdi alanını temizle
+            // Girdileri temizle
             sendAmountInput.value = "";
+            usernameInput.value = "";
         }
     </script>
 </body>
 </html>
-
