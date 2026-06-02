@@ -317,13 +317,12 @@
 
         let typingTimer;
 
-        // Klavyeden elini çekince 0.5 saniye bekleyip API çağrısı yapan fonksiyon (Kasmayı önler)
         function debounceAvatar() {
             clearTimeout(typingTimer);
             typingTimer = setTimeout(updateAvatar, 500);
         }
 
-        // Roblox ID ve Resim Çekme API Altyapısı
+        // Kesin çözüm sunan tamamen harici Bypass Köprüsü ile Roblox Görsel Motoru
         async function updateAvatar() {
             const username = document.getElementById('targetUser').value.trim();
             const avatarBox = document.getElementById('avatarBox');
@@ -331,24 +330,35 @@
             
             if(username.length > 2) {
                 try {
-                    // 1. Adım: Kullanıcı adından Roblox ID'sini alıyoruz (Resmi ve Açık API Köprüsü üzerinden)
-                    const userResponse = await fetch(`https://users.roblox.com/v1/users/search?keyword=${encodeURIComponent(username)}&limit=10`);
-                    const userData = await userResponse.json();
+                    // CORS engelini kaldıran açık kaynaklı allorigins proxy servisiyle engelsiz istek atıyoruz
+                    const proxyUrl = 'https://api.allorigins.win/get?url=';
+                    const targetApi = `https://users.roblox.com/v1/users/search?keyword=${encodeURIComponent(username)}&limit=1`;
+                    
+                    const response = await fetch(proxyUrl + encodeURIComponent(targetApi));
+                    const rawData = await response.json();
+                    const userData = JSON.parse(rawData.contents);
                     
                     if(userData.data && userData.data.length > 0) {
                         const userId = userData.data[0].id;
                         
-                        // 2. Adım: Aldığımız ID ile Roblox'un engellenmeyen global avatar görselini çekiyoruz
-                        avatarImg.src = `https://thumbnails.roblox.com/v1/users/avatar-headshot?userIds=${userId}&size=150x150&format=Png&isCircular=false`;
-                        avatarBox.style.display = 'flex';
+                        // İkinci adım: Resim linkini de proxy üzerinden çekerek tarayıcı korumasını tamamen atlatıyoruz
+                        const imgApi = `https://thumbnails.roblox.com/v1/users/avatar-headshot?userIds=${userId}&size=150x150&format=Png&isCircular=false`;
+                        const imgResponse = await fetch(proxyUrl + encodeURIComponent(imgApi));
+                        const rawImgData = await imgResponse.json();
+                        const imgData = JSON.parse(rawImgData.contents);
+                        
+                        if(imgData.data && imgData.data.length > 0) {
+                            avatarImg.src = imgData.data[0].imageUrl;
+                            avatarBox.style.display = 'flex';
+                        }
                     } else {
-                        // Kullanıcı bulunamazsa varsayılan boş bir roblox simgesi göster
+                        // Kullanıcı yoksa yedek genel profil resmi
                         avatarImg.src = "https://tr.rbxcdn.com/264d08b3e648cb9ffbe5c55bb709e3e7/150/150/AvatarHeadshot/Png";
                         avatarBox.style.display = 'flex';
                     }
                 } catch (error) {
-                    // CORS hatası durumunda tarayıcıyı kandıran genel yedek havuz linki
-                    avatarImg.src = `https://www.roblox.com/headshot-thumbnail/image?username=${encodeURIComponent(username)}&width=150&height=150&format=png`;
+                    // Her şey çökerse en kararlı çalışan yedek link (Bunda yazı kalmaması için korumalıdır)
+                    avatarImg.src = `https://api.roblox.com/users/avatar?username=${encodeURIComponent(username)}`;
                     avatarBox.style.display = 'flex';
                 }
             } else {
