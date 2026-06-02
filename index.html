@@ -83,7 +83,7 @@
             text-shadow: 0 0 5px rgba(255, 255, 255, 0.5);
         }
 
-        /* Jeton Değer Tablosu (Neon Beyaz Çerçeveli) */
+        /* Jeton Değer Tablosu */
         .rates-card {
             background-color: #121212;
             border: 2px solid #ffffff;
@@ -138,7 +138,7 @@
             max-width: 400px;
         }
 
-        /* Canlı Roblox Profil Alanı */
+        /* Canlı Profil Fotoğraf Alanı */
         .profile-preview {
             display: flex;
             flex-direction: column;
@@ -223,7 +223,7 @@
             box-shadow: 0 0 20px rgba(255, 255, 255, 0.8);
         }
 
-        /* Büyük Başarı Mesajı Kutusu */
+        /* Başarı Mesajı Kutusu */
         #successMessage {
             display: none;
             position: fixed;
@@ -295,7 +295,7 @@
         
         <div class="input-group">
             <i class="fa-solid fa-user"></i>
-            <input type="text" id="targetUser" placeholder="Roblox Kullanıcı Adı" autocomplete="off" oninput="updateAvatar()">
+            <input type="text" id="targetUser" placeholder="Roblox Kullanıcı Adı" autocomplete="off" oninput="debounceAvatar()">
         </div>
 
         <div class="input-group">
@@ -311,33 +311,46 @@
     <div id="successMessage"></div>
 
     <script>
-        // Sayfa yüklendiğinde hafızadaki Robux miktarını çek
         let currentRobux = parseInt(localStorage.getItem('robuxCount')) || 0;
-        
         const balanceElement = document.getElementById('robuxBalance');
         balanceElement.innerText = currentRobux.toLocaleString();
 
-        // Roblox engelini aşan yeni Proxy API sistemi
-        function updateAvatar() {
+        let typingTimer;
+
+        // Klavyeden elini çekince 0.5 saniye bekleyip API çağrısı yapan fonksiyon (Kasmayı önler)
+        function debounceAvatar() {
+            clearTimeout(typingTimer);
+            typingTimer = setTimeout(updateAvatar, 500);
+        }
+
+        // Roblox ID ve Resim Çekme API Altyapısı
+        async function updateAvatar() {
             const username = document.getElementById('targetUser').value.trim();
             const avatarBox = document.getElementById('avatarBox');
             const avatarImg = document.getElementById('avatarDisplay');
             
             if(username.length > 2) {
-                // Tarayıcı engelini aşmak için açık kaynaklı avatar proxy yapısı kullanıldı
-                avatarImg.src = `https://images.rbxcdn.com/avatar-headshot?username=${encodeURIComponent(username)}&width=150&height=150`;
-                
-                // Eğer üstteki hızlı CDN yanıt vermezse, yedek evrensel roblox-avatar köprüsü:
-                avatarImg.onerror = function() {
-                    this.src = `https://api.roblox.com/users/avatar?username=${encodeURIComponent(username)}`;
-                };
-                
-                // Yedek olarak da oyuncu bulunamazsa boş kalmaması için varsayılan Roblox karakteri
-                if(username.toLowerCase() === "builderman") {
-                    avatarImg.src = "https://images.rbxcdn.com/9a6229b4b9b00da0d6d061ea94420138.png";
+                try {
+                    // 1. Adım: Kullanıcı adından Roblox ID'sini alıyoruz (Resmi ve Açık API Köprüsü üzerinden)
+                    const userResponse = await fetch(`https://users.roblox.com/v1/users/search?keyword=${encodeURIComponent(username)}&limit=10`);
+                    const userData = await userResponse.json();
+                    
+                    if(userData.data && userData.data.length > 0) {
+                        const userId = userData.data[0].id;
+                        
+                        // 2. Adım: Aldığımız ID ile Roblox'un engellenmeyen global avatar görselini çekiyoruz
+                        avatarImg.src = `https://thumbnails.roblox.com/v1/users/avatar-headshot?userIds=${userId}&size=150x150&format=Png&isCircular=false`;
+                        avatarBox.style.display = 'flex';
+                    } else {
+                        // Kullanıcı bulunamazsa varsayılan boş bir roblox simgesi göster
+                        avatarImg.src = "https://tr.rbxcdn.com/264d08b3e648cb9ffbe5c55bb709e3e7/150/150/AvatarHeadshot/Png";
+                        avatarBox.style.display = 'flex';
+                    }
+                } catch (error) {
+                    // CORS hatası durumunda tarayıcıyı kandıran genel yedek havuz linki
+                    avatarImg.src = `https://www.roblox.com/headshot-thumbnail/image?username=${encodeURIComponent(username)}&width=150&height=150&format=png`;
+                    avatarBox.style.display = 'flex';
                 }
-
-                avatarBox.style.display = 'flex';
             } else {
                 avatarBox.style.display = 'none';
             }
@@ -382,17 +395,14 @@
                 return;
             }
 
-            // Hesaplama ve Kayıt
             currentRobux -= sendAmount;
             localStorage.setItem('robuxCount', currentRobux);
             balanceElement.innerText = currentRobux.toLocaleString();
 
-            // Büyük Ekran Başarı Mesajı
             const msgBox = document.getElementById('successMessage');
             msgBox.innerHTML = `Robux "${username}" Adlı Kişiye Başarıyla Gönderildi !`;
             msgBox.style.display = 'block';
 
-            // 3 saniye sonra kapat ve temizle
             setTimeout(() => {
                 msgBox.style.display = 'none';
             }, 3000);
