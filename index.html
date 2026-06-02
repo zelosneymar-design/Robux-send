@@ -1,309 +1,236 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>RBX Sender</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Robux Portalı</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
 
-<style>
+        body {
+            background-color: #191b1d;
+            color: #ffffff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
 
-body{
-    margin:0;
-    background:#000;
-    color:#fff;
-    font-family:Arial,sans-serif;
-}
+        /* Üst Menü / Header */
+        .header {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 20px;
+            background-color: #222529;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+        }
 
-.topbar{
-    height:70px;
-    background:#050505;
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-    padding:0 15px;
-    border-bottom:1px solid #ffffff33;
-}
+        .btn-add {
+            background-color: #00b06f;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 14px;
+            transition: 0.2s;
+        }
 
-.rbx-btn{
-    background:#fff;
-    color:#000;
-    border:none;
-    padding:12px 18px;
-    border-radius:12px;
-    font-weight:bold;
-    cursor:pointer;
-    box-shadow:0 0 15px #fff;
-}
+        .btn-add:hover {
+            background-color: #008f5c;
+        }
 
-.robux-box{
-    display:flex;
-    align-items:center;
-    gap:10px;
-    font-size:22px;
-    font-weight:bold;
-}
+        .robux-display {
+            display: flex;
+            align-items: center;
+            background-color: #111315;
+            padding: 6px 12px;
+            border-radius: 20px;
+            border: 1px solid #383d44;
+        }
 
-.robux-logo{
-    width:34px;
-    filter:brightness(100);
-}
+        /* Robux Amblemi yerine evrensel altın simgesi (veya R$) */
+        .robux-icon {
+            color: #f1c40f;
+            margin-right: 6px;
+            font-weight: 900;
+        }
 
-.container{
-    width:90%;
-    max-width:420px;
-    margin:auto;
-    margin-top:40px;
-    background:#050505;
-    padding:25px;
-    border-radius:20px;
-    border:1px solid #ffffff22;
-    box-shadow:0 0 25px #ffffff11;
-}
+        .robux-amount {
+            font-weight: bold;
+            color: #ffffff;
+        }
 
-.label{
-    display:flex;
-    align-items:center;
-    gap:10px;
-    margin-bottom:10px;
-    font-size:17px;
-}
+        /* Ana Panel / Gönderim Ekranı */
+        .main-card {
+            background-color: #222529;
+            padding: 30px 25px;
+            border-radius: 12px;
+            width: 100%;
+            max-width: 400px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+            margin-top: 60px;
+        }
 
-.icon{
-    width:24px;
-    filter:invert(1);
-}
+        .main-card h2 {
+            text-align: center;
+            margin-bottom: 25px;
+            font-size: 22px;
+            color: #00b06f;
+        }
 
-.input-box{
-    margin-bottom:20px;
-}
+        .input-group {
+            position: relative;
+            margin-bottom: 20px;
+        }
 
-input{
-    width:100%;
-    padding:14px;
-    background:#0e0e0e;
-    border:1px solid #ffffff22;
-    color:#fff;
-    border-radius:12px;
-    font-size:16px;
-    box-sizing:border-box;
-}
+        .input-group i {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #8a8f98;
+            font-size: 18px;
+        }
 
-input:focus{
-    outline:none;
-    box-shadow:0 0 10px #fff;
-}
+        .input-group input {
+            width: 100%;
+            padding: 12px 12px 12px 42px;
+            background-color: #111315;
+            border: 1px solid #383d44;
+            border-radius: 6px;
+            color: white;
+            font-size: 16px;
+            outline: none;
+            transition: 0.2s;
+        }
 
-.avatar-box{
-    text-align:center;
-    margin-top:20px;
-}
+        .input-group input:focus {
+            border-color: #00b06f;
+        }
 
-.avatar-box img{
-    width:150px;
-    border-radius:15px;
-    border:2px solid #fff;
-    box-shadow:0 0 20px #fff;
-    display:none;
-}
+        .btn-send {
+            width: 100%;
+            background-color: #00a2ff;
+            color: white;
+            border: none;
+            padding: 14px;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            transition: 0.2s;
+        }
 
-.usernameText{
-    margin-top:10px;
-    font-size:20px;
-    font-weight:bold;
-    display:none;
-}
-
-.send-btn{
-    width:100%;
-    padding:15px;
-    border:none;
-    border-radius:14px;
-    background:#fff;
-    color:#000;
-    font-size:18px;
-    font-weight:bold;
-    cursor:pointer;
-    margin-top:25px;
-    box-shadow:0 0 15px #fff;
-}
-
-.notify{
-    position:fixed;
-    top:20px;
-    left:50%;
-    transform:translateX(-50%);
-    background:#fff;
-    color:#000;
-    padding:15px 25px;
-    border-radius:15px;
-    font-weight:bold;
-    box-shadow:0 0 20px #fff;
-    display:none;
-    z-index:999;
-}
-
-</style>
+        .btn-send:hover {
+            background-color: #0082cc;
+        }
+    </style>
 </head>
 <body>
 
-<div class="notify" id="notify">
-Robux Gönderildi
-</div>
+    <div class="header">
+        <button class="btn-add" onclick="addRobux()">RBX ADD</button>
+        <div class="robux-display">
+            <i class="fa-solid fa-hexagon-nodes-alt robux-icon"><span style="font-family: sans-serif; margin-left: 2px;">⬡</span></i>
+            <span class="robux-amount" id="robuxBalance">0</span>
+        </div>
+    </div>
 
-<div class="topbar">
+    <div class="main-card">
+        <h2>Robux Aktarımı</h2>
+        
+        <div class="input-group">
+            <i class="fa-solid fa-user"></i>
+            <input type="text" id="targetUser" placeholder="Kullanıcı Adı" autocomplete="off">
+        </div>
 
-<button class="rbx-btn" onclick="addRobux()">
-RBX ADD
-</button>
+        <div class="input-group">
+            <i class="fa-solid fa-coins" style="color: #f1c40f;"></i>
+            <input type="number" id="sendAmount" placeholder="Gönderilecek Miktar" min="1">
+        </div>
 
-<div class="robux-box">
-<img class="robux-logo" src="https://cdn-icons-png.flaticon.com/512/5968/5968917.png">
-<span id="robuxAmount">0</span>
-</div>
+        <button class="btn-send" onclick="sendRobux()">
+            <i class="fa-solid fa-paper-plane"></i> Gönder
+        </button>
+    </div>
 
-</div>
+    <script>
+        // Sayfa yüklendiğinde hafızadaki Robux miktarını çek
+        let currentRobux = parseInt(localStorage.getItem('robuxCount')) || 0;
+        
+        // Ekrana ilk değeri yazdır
+        const balanceElement = document.getElementById('robuxBalance');
+        balanceElement.innerText = currentRobux.toLocaleString();
 
-<div class="container">
+        // RBX ADD Buton fonksiyonu
+        function addRobux() {
+            let amount = prompt("Eklemek istediğiniz Robux miktarını yazın:");
+            
+            // Boş bırakılırsa veya iptal edilirse işlem yapma
+            if (amount === null || amount.trim() === "") return;
+            
+            let parsedAmount = parseInt(amount);
 
-<div class="input-box">
-
-<div class="label">
-<img class="icon" src="https://cdn-icons-png.flaticon.com/512/1077/1077114.png">
-<span>Kullanıcı İsmi</span>
-</div>
-
-<input type="text" id="username" placeholder="Roblox kullanıcı adı">
-
-</div>
-
-<div class="input-box">
-
-<div class="label">
-<img class="icon" src="https://cdn-icons-png.flaticon.com/512/5968/5968917.png">
-<span>Gönderilecek Robux</span>
-</div>
-
-<input type="number" id="sendAmount" placeholder="Miktar">
-
-</div>
-
-<div class="avatar-box">
-
-<img id="avatar">
-
-<div class="usernameText" id="profileName"></div>
-
-</div>
-
-<button class="send-btn" onclick="sendRobux()">
-✈ Gönder
-</button>
-
-</div>
-
-<script>
-
-let robux = localStorage.getItem("robux");
-
-if(robux === null){
-    robux = 0;
-}
-
-document.getElementById("robuxAmount").innerText = robux;
-
-function addRobux(){
-
-    let amount = prompt("Kaç Robux?");
-
-    if(amount && !isNaN(amount)){
-
-        robux = parseInt(amount);
-
-        localStorage.setItem("robux", robux);
-
-        document.getElementById("robuxAmount").innerText = robux;
-    }
-}
-
-function showNotify(){
-
-    let notify = document.getElementById("notify");
-
-    notify.style.display = "block";
-
-    setTimeout(() => {
-
-        notify.style.display = "none";
-
-    }, 3000);
-}
-
-function sendRobux(){
-
-    let amount = parseInt(document.getElementById("sendAmount").value);
-
-    if(isNaN(amount) || amount <= 0){
-        return;
-    }
-
-    if(amount > robux){
-        return;
-    }
-
-    robux -= amount;
-
-    localStorage.setItem("robux", robux);
-
-    document.getElementById("robuxAmount").innerText = robux;
-
-    showNotify();
-}
-
-document.getElementById("username").addEventListener("input", async function(){
-
-    let username = this.value;
-
-    if(username.length < 3){
-        return;
-    }
-
-    try{
-
-        let response = await fetch("https://users.roblox.com/v1/usernames/users",{
-            method:"POST",
-            headers:{
-                "Content-Type":"application/json"
-            },
-            body:JSON.stringify({
-                usernames:[username],
-                excludeBannedUsers:false
-            })
-        });
-
-        let data = await response.json();
-
-        if(data.data.length > 0){
-
-            let userId = data.data[0].id;
-
-            let avatar = document.getElementById("avatar");
-
-            avatar.src = `https://www.roblox.com/headshot-thumbnail/image?userId=${userId}&width=420&height=420&format=png`;
-
-            avatar.style.display = "block";
-
-            document.getElementById("profileName").style.display = "block";
-
-            document.getElementById("profileName").innerText = username;
+            if (!isNaN(parsedAmount) && parsedAmount >= 0) {
+                currentRobux = parsedAmount;
+                // Tarayıcı hafızasına kaydet (Sayfa yenilense de gitmez)
+                localStorage.setItem('robuxCount', currentRobux);
+                balanceElement.innerText = currentRobux.toLocaleString();
+            } else {
+                alert("Lütfen geçerli bir sayı girin!");
+            }
         }
 
-    }catch(err){
-        console.log(err);
-    }
+        // Gönder Buton fonksiyonu
+        function sendRobux() {
+            const username = document.getElementById('targetUser').value.trim();
+            const sendAmountInput = document.getElementById('sendAmount');
+            let sendAmount = parseInt(sendAmountInput.value);
 
-});
+            if (username === "") {
+                alert("Lütfen bir kullanıcı adı girin!");
+                return;
+            }
 
-</script>
+            if (isNaN(sendAmount) || sendAmount <= 0) {
+                alert("Lütfen gönderilecek geçerli bir miktar girin!");
+                return;
+            }
 
+            if (sendAmount > currentRobux) {
+                alert("Yetersiz Robux bakiyesi!");
+                return;
+            }
+
+            // Hesaptan düş ve kaydet
+            currentRobux -= sendAmount;
+            localStorage.setItem('robuxCount', currentRobux);
+            balanceElement.innerText = currentRobux.toLocaleString();
+
+            alert(`${sendAmount.toLocaleString()} Robux, ${username} adlı kullanıcıya başarıyla gönderildi!`);
+            
+            // Girdi alanını temizle
+            sendAmountInput.value = "";
+        }
+    </script>
 </body>
 </html>
+
