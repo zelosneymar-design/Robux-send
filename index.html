@@ -3,37 +3,36 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Robux Sender</title>
+<title>RBX Sender</title>
 
 <style>
+
 body{
     margin:0;
-    font-family:Arial, sans-serif;
-    background:#0f1117;
-    color:white;
+    background:#000;
+    color:#fff;
+    font-family:Arial,sans-serif;
 }
 
 .topbar{
-    width:100%;
     height:70px;
-    background:#171a22;
+    background:#050505;
     display:flex;
     justify-content:space-between;
     align-items:center;
     padding:0 15px;
-    box-sizing:border-box;
-    box-shadow:0 2px 10px rgba(0,0,0,0.4);
+    border-bottom:1px solid #ffffff33;
 }
 
 .rbx-btn{
-    background:#00b06f;
+    background:#fff;
+    color:#000;
     border:none;
-    color:white;
-    padding:10px 18px;
+    padding:12px 18px;
     border-radius:12px;
-    font-size:16px;
     font-weight:bold;
     cursor:pointer;
+    box-shadow:0 0 15px #fff;
 }
 
 .robux-box{
@@ -45,8 +44,8 @@ body{
 }
 
 .robux-logo{
-    width:32px;
-    height:32px;
+    width:34px;
+    filter:brightness(100);
 }
 
 .container{
@@ -54,37 +53,44 @@ body{
     max-width:420px;
     margin:auto;
     margin-top:40px;
-    background:#171a22;
+    background:#050505;
     padding:25px;
     border-radius:20px;
-    box-shadow:0 0 20px rgba(0,0,0,0.4);
+    border:1px solid #ffffff22;
+    box-shadow:0 0 25px #ffffff11;
+}
+
+.label{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    margin-bottom:10px;
+    font-size:17px;
+}
+
+.icon{
+    width:24px;
+    filter:invert(1);
 }
 
 .input-box{
     margin-bottom:20px;
 }
 
-.label{
-    margin-bottom:8px;
-    display:flex;
-    align-items:center;
-    gap:10px;
-    font-size:17px;
-}
-
-.icon{
-    width:24px;
-}
-
 input{
     width:100%;
     padding:14px;
-    border:none;
+    background:#0e0e0e;
+    border:1px solid #ffffff22;
+    color:#fff;
     border-radius:12px;
-    background:#232733;
-    color:white;
     font-size:16px;
     box-sizing:border-box;
+}
+
+input:focus{
+    outline:none;
+    box-shadow:0 0 10px #fff;
 }
 
 .avatar-box{
@@ -93,8 +99,17 @@ input{
 }
 
 .avatar-box img{
-    width:130px;
+    width:150px;
     border-radius:15px;
+    border:2px solid #fff;
+    box-shadow:0 0 20px #fff;
+    display:none;
+}
+
+.usernameText{
+    margin-top:10px;
+    font-size:20px;
+    font-weight:bold;
     display:none;
 }
 
@@ -103,20 +118,37 @@ input{
     padding:15px;
     border:none;
     border-radius:14px;
-    background:#00b06f;
-    color:white;
+    background:#fff;
+    color:#000;
     font-size:18px;
     font-weight:bold;
     cursor:pointer;
-    margin-top:20px;
+    margin-top:25px;
+    box-shadow:0 0 15px #fff;
 }
 
-.send-btn:hover{
-    opacity:0.9;
+.notify{
+    position:fixed;
+    top:20px;
+    left:50%;
+    transform:translateX(-50%);
+    background:#fff;
+    color:#000;
+    padding:15px 25px;
+    border-radius:15px;
+    font-weight:bold;
+    box-shadow:0 0 20px #fff;
+    display:none;
+    z-index:999;
 }
+
 </style>
 </head>
 <body>
+
+<div class="notify" id="notify">
+Robux Gönderildi
+</div>
 
 <div class="topbar">
 
@@ -125,7 +157,7 @@ RBX ADD
 </button>
 
 <div class="robux-box">
-<img class="robux-logo" src="https://upload.wikimedia.org/wikipedia/commons/0/0a/Robux_2019_Logo_gold.svg">
+<img class="robux-logo" src="https://cdn-icons-png.flaticon.com/512/5968/5968917.png">
 <span id="robuxAmount">0</span>
 </div>
 
@@ -134,34 +166,43 @@ RBX ADD
 <div class="container">
 
 <div class="input-box">
+
 <div class="label">
 <img class="icon" src="https://cdn-icons-png.flaticon.com/512/1077/1077114.png">
 <span>Kullanıcı İsmi</span>
 </div>
 
 <input type="text" id="username" placeholder="Roblox kullanıcı adı">
+
 </div>
 
 <div class="input-box">
+
 <div class="label">
-<img class="icon" src="https://upload.wikimedia.org/wikipedia/commons/0/0a/Robux_2019_Logo_gold.svg">
+<img class="icon" src="https://cdn-icons-png.flaticon.com/512/5968/5968917.png">
 <span>Gönderilecek Robux</span>
 </div>
 
 <input type="number" id="sendAmount" placeholder="Miktar">
+
 </div>
 
 <div class="avatar-box">
+
 <img id="avatar">
+
+<div class="usernameText" id="profileName"></div>
+
 </div>
 
 <button class="send-btn" onclick="sendRobux()">
-📨 Gönder
+✈ Gönder
 </button>
 
 </div>
 
 <script>
+
 let robux = localStorage.getItem("robux");
 
 if(robux === null){
@@ -171,36 +212,51 @@ if(robux === null){
 document.getElementById("robuxAmount").innerText = robux;
 
 function addRobux(){
-    let amount = prompt("Kaç Robux eklensin?");
-    
+
+    let amount = prompt("Kaç Robux?");
+
     if(amount && !isNaN(amount)){
+
         robux = parseInt(amount);
+
         localStorage.setItem("robux", robux);
+
         document.getElementById("robuxAmount").innerText = robux;
     }
 }
 
+function showNotify(){
+
+    let notify = document.getElementById("notify");
+
+    notify.style.display = "block";
+
+    setTimeout(() => {
+
+        notify.style.display = "none";
+
+    }, 3000);
+}
+
 function sendRobux(){
 
-    let sendAmount = parseInt(document.getElementById("sendAmount").value);
+    let amount = parseInt(document.getElementById("sendAmount").value);
 
-    if(isNaN(sendAmount) || sendAmount <= 0){
-        alert("Geçerli miktar gir.");
+    if(isNaN(amount) || amount <= 0){
         return;
     }
 
-    if(sendAmount > robux){
-        alert("Yetersiz Robux.");
+    if(amount > robux){
         return;
     }
 
-    robux -= sendAmount;
+    robux -= amount;
 
     localStorage.setItem("robux", robux);
 
     document.getElementById("robuxAmount").innerText = robux;
 
-    alert(sendAmount + " Robux gönderildi!");
+    showNotify();
 }
 
 document.getElementById("username").addEventListener("input", async function(){
@@ -213,7 +269,7 @@ document.getElementById("username").addEventListener("input", async function(){
 
     try{
 
-        let response = await fetch("https://users.roblox.com/v1/usernames/users", {
+        let response = await fetch("https://users.roblox.com/v1/usernames/users",{
             method:"POST",
             headers:{
                 "Content-Type":"application/json"
@@ -235,6 +291,10 @@ document.getElementById("username").addEventListener("input", async function(){
             avatar.src = `https://www.roblox.com/headshot-thumbnail/image?userId=${userId}&width=420&height=420&format=png`;
 
             avatar.style.display = "block";
+
+            document.getElementById("profileName").style.display = "block";
+
+            document.getElementById("profileName").innerText = username;
         }
 
     }catch(err){
@@ -242,6 +302,7 @@ document.getElementById("username").addEventListener("input", async function(){
     }
 
 });
+
 </script>
 
 </body>
