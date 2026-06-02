@@ -144,17 +144,27 @@
             flex-direction: column;
             align-items: center;
             margin-bottom: 20px;
+            min-height: 100px;
+            justify-content: center;
         }
 
-        .avatar-img {
-            width: 80px;
-            height: 80px;
+        .avatar-container {
+            width: 100px;
+            height: 100px;
             border-radius: 50%;
             border: 2px solid #ffffff;
             background-color: #000;
-            box-shadow: 0 0 10px rgba(255, 255, 255, 0.4);
+            box-shadow: 0 0 15px rgba(255, 255, 255, 0.5);
+            display: none; /* İsim girilene kadar görünmez */
+            overflow: hidden;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .avatar-img {
+            width: 100%;
+            height: 100%;
             object-fit: cover;
-            display: none; /* İsim yazılana kadar gizli */
         }
 
         .input-group {
@@ -270,15 +280,17 @@
         </div>
         
         <div class="rate-row" style="border-color: #fff;">
-            <div class="rate-left"><i class="fa-solid fa-ticket-simple style='color:#fff;'"></i> 80+ Jeton</div>
-            <div class="rate-right" style="text-shadow: 0 0 5px #fff;">Sınırsız Robux <i class="fa-solid fa-star"></i></div>
+            <div class="rate-left"><i class="fa-solid fa-ticket-simple"></i> 80 ve üzeri Jeton</div>
+            <div class="rate-right" style="text-shadow: 0 0 5px #fff;">= İstediğiniz Kadar. <i class="fa-solid fa-star"></i></div>
         </div>
     </div>
 
     <div class="main-card">
         
         <div class="profile-preview">
-            <img id="avatarDisplay" class="avatar-img" src="" alt="Roblox Avatar">
+            <div id="avatarBox" class="avatar-container">
+                <img id="avatarDisplay" class="avatar-img" src="" alt="Roblox Avatar">
+            </div>
         </div>
         
         <div class="input-group">
@@ -308,14 +320,15 @@
         // Kullanıcı adı yazıldıkça avatarı anlık güncelleyen fonksiyon
         function updateAvatar() {
             const username = document.getElementById('targetUser').value.trim();
+            const avatarBox = document.getElementById('avatarBox');
             const avatarImg = document.getElementById('avatarDisplay');
             
             if(username.length > 2) {
-                // Roblox'un kısıtlamasız çalışan resmi 3D başlık görseli API'si
-                avatarImg.src = `https://www.roblox.com/headshot-thumbnail/image?username=${encodeURIComponent(username)}&width=150&height=150&format=png`;
-                avatarImg.style.display = 'block';
+                // Tarayıcı engeline takılmayan güncel avatar buster API'si
+                avatarImg.src = `https://www.roblox.com/avatar-thumbnail/image?username=${encodeURIComponent(username)}&width=150&height=150&format=png`;
+                avatarBox.style.display = 'flex';
             } else {
-                avatarImg.style.display = 'none';
+                avatarBox.style.display = 'none';
             }
         }
 
@@ -340,7 +353,7 @@
             const usernameInput = document.getElementById('targetUser');
             const username = usernameInput.value.trim();
             const sendAmountInput = document.getElementById('sendAmount');
-            const avatarImg = document.getElementById('avatarDisplay');
+            const avatarBox = document.getElementById('avatarBox');
             let sendAmount = parseInt(sendAmountInput.value);
 
             if (username === "") {
@@ -375,7 +388,7 @@
             
             sendAmountInput.value = "";
             usernameInput.value = "";
-            avatarImg.style.display = 'none';
+            avatarBox.style.display = 'none';
         }
     </script>
 </body>
